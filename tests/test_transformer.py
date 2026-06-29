@@ -104,6 +104,9 @@ Skills Summary
     assert profile["experience"][0]["start"] == "2026-01"
     assert profile["experience"][0]["end"] is None
     assert profile["headline"] == "SDE (Applied AI) Intern at MindTickle"
+    assert profile["projects"][0]["title"] == "CodeForces Future Rating Predictor"
+    assert profile["projects"][0]["date"] == "June 2025"
+    assert {"ReactJS", "TailwindCSS", "Flask", "MongoDB"} <= set(profile["projects"][0]["tech_stack"])
     assert {"Go", "Kafka", "Redis", "gRPC", "Kubernetes", "LangGraph", "ReAct Agents", "C++"} <= skill_names
 
 
@@ -129,3 +132,48 @@ January 2026 - Present
     assert profile["experience"][0]["company"] == "ExampleCo"
     assert "\x95" not in profile["profile_summary"]
     assert "•" not in profile["profile_summary"]
+
+
+def test_projects_section_is_structured_and_skills_are_evidence_based(tmp_path):
+    resume = tmp_path / "projects_resume.txt"
+    resume.write_text(
+        """
+Test Candidate Email: test@example.com
+Projects
+• CodeForces Future Rating Predictor : Github Link: June 2025
+Built a web app that predicts Codeforces users' future rating changes using Polynomial Regression, based on contest history fetched from the Codeforces API.
+Visualized the predicted trend with ChartJS and used a ping monitor to keep the backend active.
+Tech Stack: ReactJS, TailwindCSS, Flask, MongoDB. Frontend deployed on Netlify, backend on Render.
+Tracked and stored website traffic with MongoDB; handled 10000+ requests with positive community feedback - Community Comments, Deployed link: https://cfratingpredictor.netlify.app.
+• AnonGrievance - (Full Stack Development, NLP) : Github Link: April 2024
+Implemented a bilingual hate/abusive text classification model to disallow vulgar text and fine-tuned using Supervised Fine-Tuning.
+Developed Frontend using ReactJS and Tailwind CSS and backend using ExpressJS, NodeJS and MongoDB.
+Used MongoDB's TTL indexing to keep the database clean.
+Implemented Pagination and Dark/Light mode themes.
+""".strip(),
+        encoding="utf-8",
+    )
+
+    profile = transform_paths([resume], default_region="IN")["default_profile"]
+    project_titles = [project["title"] for project in profile["projects"]]
+    skill_names = {skill["name"] for skill in profile["skills"]}
+
+    assert project_titles == ["CodeForces Future Rating Predictor", "AnonGrievance - (Full Stack Development, NLP)"]
+    assert profile["projects"][0]["date"] == "June 2025"
+    assert "https://cfratingpredictor.netlify.app" in profile["projects"][0]["links"]
+    assert {"ReactJS", "TailwindCSS", "Flask", "MongoDB"} <= set(profile["projects"][0]["tech_stack"])
+    assert {
+        "Polynomial Regression",
+        "Codeforces API",
+        "Ping Monitoring",
+        "Traffic Analytics",
+        "Netlify",
+        "Render",
+        "Supervised Fine-Tuning",
+        "Express.js",
+        "Node.js",
+        "MongoDB TTL Indexes",
+        "Pagination",
+        "Dark Mode",
+        "Light Mode",
+    } <= skill_names

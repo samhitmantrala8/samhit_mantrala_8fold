@@ -60,6 +60,7 @@ def transform_paths(
     paths: Iterable[Path],
     config: dict | None = None,
     github_url: str | None = None,
+    linkedin_url: str | None = None,
     default_region: str = "US",
     use_llm: bool = False,
 ) -> dict:
@@ -86,6 +87,9 @@ def transform_paths(
         bundle = extract_github(github_url)
         raw_facts.extend(bundle.facts)
         extraction_errors.extend(bundle.errors)
+
+    if linkedin_url:
+        raw_facts.append(ExtractedFact("links.linkedin", linkedin_url, "input:linkedin", "user-supplied-url", 0.9))
 
     normalized_facts = [
         normalized

@@ -67,6 +67,7 @@ def summary_context(profile: dict[str, Any], source_texts: list[str]) -> dict[st
         "links": profile.get("links"),
         "education": profile.get("education"),
         "experience": profile.get("experience"),
+        "projects": profile.get("projects"),
         "skills": [skill.get("name") for skill in profile.get("skills", [])],
         "sections": extract_resume_sections(source_texts),
     }
@@ -76,6 +77,7 @@ def deterministic_summary(profile: dict[str, Any], source_texts: list[str]) -> s
     name = clean_inline_text(profile.get("full_name")) or "The candidate"
     education = profile.get("education") or []
     experience = profile.get("experience") or []
+    projects = profile.get("projects") or []
     skills = [skill.get("name") for skill in profile.get("skills", [])[:14]]
     sections = extract_resume_sections(source_texts)
 
@@ -101,9 +103,13 @@ def deterministic_summary(profile: dict[str, Any], source_texts: list[str]) -> s
         if roles:
             experience_text = " Experience includes " + ", ".join(roles) + "."
 
-    project_text = " Projects and achievements are present in the source resume." if any(
-        key in sections for key in ("Projects", "Achievements")
-    ) else ""
+    project_text = ""
+    if projects:
+        project_titles = [clean_inline_text(project.get("title")) for project in projects[:3] if project.get("title")]
+        if project_titles:
+            project_text = " Projects include " + ", ".join(project_titles) + "."
+    elif any(key in sections for key in ("Projects", "Achievements")):
+        project_text = " Projects and achievements are present in the source resume."
     skill_text = f" Key skills include {', '.join(skills)}." if skills else ""
     summary = f"{name} is a candidate{education_text}.{experience_text}{project_text}{skill_text}"
     return re.sub(r"\s+", " ", summary).strip()

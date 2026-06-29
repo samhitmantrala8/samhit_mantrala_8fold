@@ -27,6 +27,7 @@ def create_app() -> Flask:
     def transform():
         uploaded_files = request.files.getlist("files")
         github_url = request.form.get("github_url") or None
+        linkedin_url = request.form.get("linkedin_url") or None
         config_text = request.form.get("config") or ""
         default_region = request.form.get("default_region") or os.getenv("DEFAULT_PHONE_REGION", "US")
         use_llm = (request.form.get("use_llm") or "").lower() in {"1", "true", "yes"}
@@ -52,6 +53,7 @@ def create_app() -> Flask:
                 paths,
                 config=config,
                 github_url=github_url,
+                linkedin_url=linkedin_url,
                 default_region=default_region,
                 use_llm=use_llm,
             )
@@ -67,4 +69,3 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-

@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import {
   BriefcaseBusiness,
   CheckCircle2,
+  ExternalLink,
   FileJson,
+  FolderKanban,
   Github,
   GraduationCap,
   Link as LinkIcon,
@@ -120,6 +122,20 @@ function SkillChips({ skills = [] }) {
   );
 }
 
+function TextChips({ items = [] }) {
+  const cleaned = [...new Set(items.map(cleanInlineText).filter(Boolean))];
+  if (!cleaned.length) return null;
+  return (
+    <div className="flex flex-wrap gap-2">
+      {cleaned.map((item) => (
+        <span key={item} className="rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700">
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function CleanProfile({ profile }) {
   if (!profile) {
     return (
@@ -133,7 +149,7 @@ function CleanProfile({ profile }) {
   const primaryPhone = profile.phones?.[0];
   const links = profile.links || {};
   const visibleSections = Object.entries(profile.resume_sections || {}).filter(
-    ([name]) => !["Education", "Experience", "Skills", "Skills Summary"].includes(name)
+    ([name]) => !["Education", "Experience", "Projects", "Skills", "Skills Summary"].includes(name)
   );
 
   return (
@@ -216,6 +232,54 @@ function CleanProfile({ profile }) {
           </div>
         )}
 
+        {profile.projects?.length > 0 && (
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+              <FolderKanban size={16} />
+              Projects
+            </div>
+            <div className="divide-y divide-line rounded-md border border-line">
+              {profile.projects.map((project, index) => (
+                <div key={`${project.title}-${index}`} className="space-y-3 px-3 py-3">
+                  <div className="flex flex-col gap-1 md:flex-row md:items-start md:justify-between">
+                    <div className="font-medium text-slate-900">{cleanInlineText(project.title)}</div>
+                    {project.date && <div className="text-sm text-slate-600">{cleanInlineText(project.date)}</div>}
+                  </div>
+                  {project.tech_stack?.length > 0 && (
+                    <div>
+                      <div className="mb-1 text-xs font-semibold uppercase tracking-normal text-slate-500">Tech Stack</div>
+                      <TextChips items={project.tech_stack} />
+                    </div>
+                  )}
+                  {project.links?.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {project.links.map((link) => (
+                        <a
+                          key={link}
+                          href={link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-ink"
+                        >
+                          <ExternalLink size={13} />
+                          {cleanInlineText(link)}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  {project.bullets?.length > 0 && (
+                    <ul className="list-disc space-y-1 pl-5 text-sm leading-5 text-slate-600">
+                      {project.bullets.map((bullet, bulletIndex) => (
+                        <li key={`${project.title}-bullet-${bulletIndex}`}>{cleanInlineText(bullet)}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {visibleSections.length > 0 && (
           <div>
             <div className="mb-2 text-sm font-semibold">Other Sections</div>
@@ -242,6 +306,7 @@ function CleanProfile({ profile }) {
 export default function App() {
   const [files, setFiles] = useState([]);
   const [githubUrl, setGithubUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [defaultRegion, setDefaultRegion] = useState("US");
   const [config, setConfig] = useState(SAMPLE_CONFIG);
   const [useLlm, setUseLlm] = useState(false);
@@ -260,6 +325,7 @@ export default function App() {
     const payload = new FormData();
     for (const file of files) payload.append("files", file);
     payload.append("github_url", githubUrl);
+    payload.append("linkedin_url", linkedinUrl);
     payload.append("default_region", defaultRegion);
     payload.append("use_llm", String(useLlm));
     payload.append("config", config);
@@ -321,6 +387,19 @@ export default function App() {
               value={githubUrl}
               onChange={(event) => setGithubUrl(event.target.value)}
               placeholder="https://github.com/username"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-sm font-medium">
+              <LinkIcon size={16} />
+              LinkedIn URL
+            </span>
+            <input
+              className="w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-ink"
+              value={linkedinUrl}
+              onChange={(event) => setLinkedinUrl(event.target.value)}
+              placeholder="https://linkedin.com/in/username"
             />
           </label>
 

@@ -14,6 +14,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--inputs", nargs="+", required=True, help="Input files such as CSV, JSON, or TXT.")
     parser.add_argument("--config", help="Optional custom output config JSON.")
     parser.add_argument("--github-url", help="Optional GitHub profile URL.")
+    parser.add_argument("--linkedin-url", help="Optional LinkedIn profile URL.")
     parser.add_argument("--default-region", default="US", help="Default region for local phone numbers.")
     parser.add_argument("--use-llm", action="store_true", help="Enable optional OpenRouter text extraction.")
     parser.add_argument("--out", help="Write the full result bundle to this JSON file.")
@@ -32,6 +33,7 @@ def main() -> int:
         [Path(path) for path in args.inputs],
         config=config,
         github_url=args.github_url,
+        linkedin_url=args.linkedin_url,
         default_region=args.default_region,
         use_llm=args.use_llm,
     )
@@ -46,4 +48,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

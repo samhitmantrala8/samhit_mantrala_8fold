@@ -14,6 +14,8 @@ The implementation supports:
 - ATS JSON blob
 - Recruiter notes TXT
 - Optional GitHub profile URL
+- Optional LinkedIn profile URL storage when a real `linkedin.com/...` URL is supplied
+- Structured resume projects with title, date, tech stack, links, and evidence bullets
 - Optional OpenRouter LLM extraction for messy text
 - Mandatory profile summary generation through OpenRouter when a key is configured, with local fallback only if a key is unavailable
 - Optional Hugging Face embedding matching for semantic skill canonicalization
@@ -62,6 +64,7 @@ multipart form fields:
 - files: one or more CSV, JSON, TXT, or MD files
 - config: optional runtime projection JSON
 - github_url: optional GitHub profile URL
+- linkedin_url: optional LinkedIn profile URL
 - default_region: phone parsing region, default US
 - use_llm: true or false
 ```
@@ -83,6 +86,8 @@ http://127.0.0.1:5177
 This repo defaults to Flask `5055` and Vite `5177` to avoid collisions with the common Flask `5000` port.
 
 The Vite dev server proxies `/api` to Flask on port `5055`.
+
+LinkedIn handling is intentionally conservative: the transformer stores and normalizes real LinkedIn URLs, but it does not guess a LinkedIn URL from a person's name.
 
 ## Tests
 

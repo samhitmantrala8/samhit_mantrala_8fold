@@ -74,6 +74,16 @@ CANONICAL_SKILLS = [
     "KV Caching",
     "FFmpeg",
     "Polynomial Regression",
+    "Codeforces API",
+    "Ping Monitoring",
+    "Traffic Analytics",
+    "MongoDB TTL Indexes",
+    "Pagination",
+    "Responsive Design",
+    "Dark Mode",
+    "Light Mode",
+    "Anonymous Platforms",
+    "Content Moderation",
     "Chart.js",
     "Netlify",
     "Render",
@@ -188,6 +198,25 @@ ALIASES = {
     "kv caching": "KV Caching",
     "ffmpeg": "FFmpeg",
     "polynomial regression": "Polynomial Regression",
+    "codeforces api": "Codeforces API",
+    "ping monitor": "Ping Monitoring",
+    "ping monitoring": "Ping Monitoring",
+    "website traffic": "Traffic Analytics",
+    "traffic": "Traffic Analytics",
+    "ttl": "MongoDB TTL Indexes",
+    "ttl indexing": "MongoDB TTL Indexes",
+    "time to live": "MongoDB TTL Indexes",
+    "pagination": "Pagination",
+    "responsive": "Responsive Design",
+    "responsive design": "Responsive Design",
+    "dark mode": "Dark Mode",
+    "dark light mode": "Dark Mode",
+    "light mode": "Light Mode",
+    "anonymous": "Anonymous Platforms",
+    "anonymously": "Anonymous Platforms",
+    "hate": "Content Moderation",
+    "abusive text": "Content Moderation",
+    "content moderation": "Content Moderation",
     "chartjs": "Chart.js",
     "chart.js": "Chart.js",
     "netlify": "Netlify",
@@ -241,7 +270,7 @@ def extract_skills_from_text(text: str) -> list[tuple[str, float, str]]:
         alias_norm = normalize_token(alias)
         if not alias_norm:
             continue
-        if f" {alias_norm} " in normalized:
+        if re.search(rf"(?<![a-z0-9#+]){re.escape(alias_norm)}(?![a-z0-9#+])", normalized):
             confidence = 0.82 if len(alias_norm) > 2 else 0.68
             previous = matches.get(canonical)
             if previous is None or confidence > previous[0]:

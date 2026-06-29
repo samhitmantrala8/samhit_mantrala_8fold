@@ -48,7 +48,7 @@ def clean_line(line: str) -> str:
 def strip_leading_marker(value: str) -> str:
     value = clean_line(value)
     value = BULLET_PREFIX_RE.sub("", value)
-    return value.strip(" -:")
+    return value.strip(" -:?")
 
 
 def non_empty_lines(text: str) -> list[str]:
@@ -268,6 +268,103 @@ def parse_experience(text: str, source: str) -> list[ExtractedFact]:
     return facts
 
 
+def parse_project_header(line: str) -> tuple[str, str | None] | None:
+    header = strip_leading_marker(line)
+    if not header or ACTION_PREFIX_RE.search(header):
+        return None
+    if re.match(r"^(?:tech stack|deployed link|community comments)\b", header, re.IGNORECASE):
+        return None
+    date_match = re.search(
+        r"\b(?P<date>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+\d{4}|\d{4})\s*$",
+        header,
+        re.IGNORECASE,
+    )
+    date = date_match.group("date") if date_match else None
+    title = header[: date_match.start()].strip() if date_match else header
+    title = re.sub(r"\s*:?\s*Github Link:?\s*$", "", title, flags=re.IGNORECASE).strip()
+    title = title.strip(" :-")
+    if not title or len(title.split()) > 14:
+        return None
+    return title, date
+
+
+def tech_stack_from_block(block: list[str]) -> list[str]:
+    tech_items: list[str] = []
+    for line in block:
+        match = re.search(r"\bTech Stack\s*:\s*(.+)", line, re.IGNORECASE)
+        if not match:
+            continue
+        raw = re.sub(r"\b(?:Frontend|backend)\s+deployed\b.*$", "", match.group(1), flags=re.IGNORECASE)
+        for item in re.split(r",|;|\band\b", raw):
+            cleaned = strip_leading_marker(item).strip(". ")
+            if cleaned and cleaned not in tech_items:
+                tech_items.append(cleaned)
+    return tech_items
+
+
+def links_from_block(block: list[str]) -> list[str]:
+    links: list[str] = []
+    for line in block:
+        for match in URL_RE.finditer(line):
+            url = normalize_url(match.group(0))
+            if url and url not in links:
+                links.append(url)
+        for match in BARE_URL_RE.finditer(line):
+            url = normalize_url(match.group(0))
+            if url and url not in links:
+                links.append(url)
+    return links
+
+
+def project_bullets_from_block(block: list[str]) -> list[str]:
+    bullets: list[str] = []
+    for line in block[1:]:
+        cleaned = strip_leading_marker(line)
+        if not cleaned:
+            continue
+        if re.match(r"^Github Link:?\b", cleaned, re.IGNORECASE):
+            continue
+        bullets.append(cleaned[:360])
+    return bullets[:6]
+
+
+def parse_projects(text: str, source: str) -> list[ExtractedFact]:
+    lines = section_lines(text, "Projects", {"achievements", "skills summary", "skills", "experience", "education"})
+    facts: list[ExtractedFact] = []
+    if not lines:
+        return facts
+
+    blocks: list[list[str]] = []
+    for line in lines:
+        if parse_project_header(line):
+            blocks.append([line])
+        elif blocks:
+            blocks[-1].append(line)
+
+    for block in blocks:
+        parsed = parse_project_header(block[0])
+        if not parsed:
+            continue
+        title, date = parsed
+        facts.append(
+            ExtractedFact(
+                "projects",
+                {
+                    "title": title,
+                    "date": date,
+                    "tech_stack": tech_stack_from_block(block),
+                    "links": links_from_block(block),
+                    "bullets": project_bullets_from_block(block),
+                },
+                source,
+                "notes-resume-section:projects",
+                0.74,
+                " | ".join(block[:3]),
+            )
+        )
+    return facts
+
+
 def extract_notes(path: Path, use_llm: bool = False) -> ExtractionBundle:
     facts: list[ExtractedFact] = []
     errors: list[str] = []
@@ -324,6 +421,7 @@ def extract_notes(path: Path, use_llm: bool = False) -> ExtractionBundle:
 
     facts.extend(parse_education(text, source))
     facts.extend(parse_experience(text, source))
+    facts.extend(parse_projects(text, source))
 
     if use_llm:
         from backend.transformer.extractors.llm_extractor import extract_text_with_llm
