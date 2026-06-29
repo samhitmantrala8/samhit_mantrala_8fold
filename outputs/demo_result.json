@@ -37,6 +37,13 @@
         ]
       },
       {
+        "name": "GitHub",
+        "confidence": 0.8,
+        "sources": [
+          "notes:recruiter_notes.txt"
+        ]
+      },
+      {
         "name": "OpenRouter",
         "confidence": 0.8,
         "sources": [
@@ -81,6 +88,13 @@
       {
         "name": "Tailwind CSS",
         "confidence": 0.8,
+        "sources": [
+          "notes:recruiter_notes.txt"
+        ]
+      },
+      {
+        "name": "Artificial Intelligence",
+        "confidence": 0.66,
         "sources": [
           "notes:recruiter_notes.txt"
         ]
@@ -298,6 +312,20 @@
         "source": "notes:recruiter_notes.txt",
         "method": "notes-skill-alias-fuzzy",
         "confidence": 0.8,
+        "evidence": "github"
+      },
+      {
+        "field": "skills",
+        "source": "notes:recruiter_notes.txt",
+        "method": "notes-skill-alias-fuzzy",
+        "confidence": 0.66,
+        "evidence": "ai"
+      },
+      {
+        "field": "skills",
+        "source": "notes:recruiter_notes.txt",
+        "method": "notes-skill-alias-fuzzy",
+        "confidence": 0.8,
         "evidence": "embeddings"
       },
       {
@@ -315,7 +343,7 @@
         "evidence": "openrouter"
       }
     ],
-    "overall_confidence": 0.922,
+    "overall_confidence": 0.919,
     "extraction_errors": []
   },
   "custom_output": {
@@ -324,8 +352,10 @@
     "phone": "+14155550198",
     "github": "https://github.com/samhitmantrala8",
     "skills": [
+      "Artificial Intelligence",
       "Embeddings",
       "Flask",
+      "GitHub",
       "OpenRouter",
       "PostgreSQL",
       "Python",
@@ -335,7 +365,7 @@
       "Tailwind CSS"
     ],
     "current_company": "Eightfold AI",
-    "overall_confidence": 0.922,
+    "overall_confidence": 0.919,
     "provenance": [
       {
         "field": "full_name",
@@ -518,6 +548,20 @@
         "method": "notes-skill-alias-fuzzy",
         "confidence": 0.8,
         "evidence": "postgresql"
+      },
+      {
+        "field": "skills",
+        "source": "notes:recruiter_notes.txt",
+        "method": "notes-skill-alias-fuzzy",
+        "confidence": 0.8,
+        "evidence": "github"
+      },
+      {
+        "field": "skills",
+        "source": "notes:recruiter_notes.txt",
+        "method": "notes-skill-alias-fuzzy",
+        "confidence": 0.66,
+        "evidence": "ai"
       },
       {
         "field": "skills",
