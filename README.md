@@ -15,7 +15,7 @@ The implementation supports:
 - Recruiter notes TXT
 - Optional GitHub profile URL
 - Optional OpenRouter LLM extraction for messy text
-- Mandatory profile summary generation through OpenRouter when keys are configured, with local fallback only if keys are unavailable
+- Mandatory profile summary generation through OpenRouter when a key is configured, with local fallback only if a key is unavailable
 - Optional Hugging Face embedding matching for semantic skill canonicalization
 
 LLM and embedding helpers are deliberately optional. The transformer still runs end-to-end without network keys.
@@ -94,22 +94,22 @@ The tests cover default schema output, custom projection, phone normalization, s
 
 ## Optional AI Configuration
 
-Do not commit real keys. Add them to `.env`:
+Do not commit a real key. Add it to `.env`:
 
 ```env
-OPENROUTER_KEYS=key_one,key_two,key_three
+OPENROUTER_API_KEY=your_openrouter_key
 USE_LLM_EXTRACTOR=true
 OPENROUTER_MODEL=meta-llama/llama-3.1-8b-instruct:free
 ```
 
-The LLM extractor asks for strict JSON with evidence spans and uses temperature `0`. If one OpenRouter key is rate limited or rejected, the extractor tries the next configured key. LLM output is validated, normalized, and merged by the deterministic engine before it can affect the final profile.
+The LLM extractor asks for strict JSON with evidence spans and uses temperature `0`. LLM output is validated, normalized, and merged by the deterministic engine before it can affect the final profile.
 
 Optional semantic skill matching:
 
 ```env
 HF_API_TOKEN=your_huggingface_token
 USE_EMBEDDINGS=true
-HF_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+HF_EMBEDDING_MODEL=BAAI/bge-base-en-v1.5
 ```
 
 Embeddings are only used for controlled skill canonicalization when exact alias and fuzzy matching do not resolve a mention.

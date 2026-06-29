@@ -23,7 +23,7 @@ class HuggingFaceEmbeddingMatcher:
     def __init__(self) -> None:
         self.enabled = os.getenv("USE_EMBEDDINGS", "false").lower() in {"1", "true", "yes"}
         self.token = os.getenv("HF_API_TOKEN")
-        self.model = os.getenv("HF_EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+        self.model = os.getenv("HF_EMBEDDING_MODEL", "BAAI/bge-base-en-v1.5")
         self.timeout = 12
 
     def available(self) -> bool:
@@ -66,4 +66,3 @@ class HuggingFaceEmbeddingMatcher:
         if best_name and best_score >= threshold:
             return best_name, best_score
         return None
-

@@ -145,7 +145,7 @@ def generate_profile_summary(profile: dict[str, Any], source_texts: list[str]) -
                     timeout=25,
                 )
                 if response.status_code in {429, 402, 403}:
-                    errors.append(f"profile_summary: OpenRouter key rejected or rate limited with status {response.status_code}")
+                    errors.append(f"profile_summary: OpenRouter returned status {response.status_code}")
                     continue
                 response.raise_for_status()
                 content = response.json()["choices"][0]["message"]["content"].strip()

@@ -16,8 +16,8 @@ Each extracted value must include a short evidence string copied from the text."
 
 
 def configured_keys() -> list[str]:
-    raw = os.getenv("OPENROUTER_KEYS") or os.getenv("OPENROUTER_API_KEY") or ""
-    return [key.strip() for key in raw.replace("\n", ",").split(",") if key.strip()]
+    key = os.getenv("OPENROUTER_API_KEY") or ""
+    return [key.strip()] if key.strip() else []
 
 
 def extract_text_with_llm(text: str, source: str) -> ExtractionBundle:
@@ -64,7 +64,7 @@ def extract_text_with_llm(text: str, source: str) -> ExtractionBundle:
                 timeout=25,
             )
             if response.status_code in {429, 402, 403}:
-                last_error = f"llm: key rejected or rate limited with status {response.status_code}"
+                last_error = f"llm: provider returned status {response.status_code}"
                 continue
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
@@ -117,4 +117,3 @@ def facts_from_llm_payload(payload: dict[str, Any], source: str) -> ExtractionBu
         if isinstance(item, dict):
             facts.append(ExtractedFact("education", item, llm_source, "llm-json-extraction:education", 0.54, item.get("evidence")))
     return ExtractionBundle(facts, [])
-
