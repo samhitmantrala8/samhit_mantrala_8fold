@@ -7,6 +7,22 @@ React, Tailwind CSS, Flask, and a hybrid deterministic plus Gemini evaluation pi
 - [Demo video](https://drive.google.com/file/d/1DRub1W5JejM3rd1olBlqDQZeUExM6ez_/view?usp=drive_link) - also uploaded in the Google Form.
 - [One-pager document](https://drive.google.com/file/d/1dCMJMVouwzVmy4h9k_txlQtdCw9qoAL9/view?usp=sharing) - also uploaded in the Google Form.
 
+## Testing Screenshots
+
+The following screenshots are included in this repository and rendered directly in the README.
+
+| Custom output from JSON source | Resume text extraction |
+| --- | --- |
+| <img src="docs/screenshots/01-custom-output-json.png" alt="Custom output from JSON source" width="100%"> | <img src="docs/screenshots/02-resume-text-extraction.png" alt="Resume text extraction" width="100%"> |
+
+| Sample JSON input with non-canonical field names | Sample resume input |
+| --- | --- |
+| <img src="docs/screenshots/03-sample-json-input.png" alt="Sample JSON input" width="100%"> | <img src="docs/screenshots/04-sample-resume-input.png" alt="Sample resume input" width="100%"> |
+
+| Agent trace scores | Agent trace details |
+| --- | --- |
+| <img src="docs/screenshots/05-agent-trace-scores.png" alt="Agent trace scores" width="100%"> | <img src="docs/screenshots/06-agent-trace-details.png" alt="Agent trace details" width="100%"> |
+
 ## What This Project Does
 
 This application takes candidate information from multiple messy sources and converts it into a stable canonical profile. It also lets a recruiter choose exactly which fields should appear in a custom output structure, whether empty fields should be kept, and what output keys should be renamed to.
@@ -144,32 +160,6 @@ When a field is missing, ambiguous, or below confidence expectations, the ReAct-
 8. Stop when the value is accepted, the loop stops improving, or the maximum loop count is reached.
 
 This design keeps the system practical: deterministic rules handle easy cases quickly, while Gemini is reserved for ambiguity, normalization, semantic mapping, and verification.
-
-## Screenshots From Testing
-
-### Custom Output From JSON Source
-
-![Custom output from JSON upload](docs/screenshots/01-custom-output-json.png)
-
-### Resume Text Extraction
-
-![Resume text extraction output](docs/screenshots/02-resume-text-extraction.png)
-
-### Sample JSON Input With Non-Canonical Field Names
-
-![Sample JSON input](docs/screenshots/03-sample-json-input.png)
-
-### Sample Resume Input
-
-![Sample resume input](docs/screenshots/04-sample-resume-input.png)
-
-### Agent Trace Scores
-
-![Agent trace scores](docs/screenshots/05-agent-trace-scores.png)
-
-### Agent Trace Details
-
-![Agent trace details](docs/screenshots/06-agent-trace-details.png)
 
 ## Tech Stack
 
