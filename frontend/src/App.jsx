@@ -28,6 +28,7 @@ import {
 
 const MAX_FILES = 5;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const DEFAULT_PHONE_REGION = "IN";
 const ACCEPTED_EXTENSIONS = [".csv", ".json", ".txt", ".md", ".pdf", ".docx"];
 const CUSTOM_FIELD_OPTIONS = [
   { group: "Identity", label: "Full Name", path: "full_name", type: "string" },
@@ -900,7 +901,6 @@ export default function App() {
   const [files, setFiles] = useState([]);
   const [githubUrl, setGithubUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
-  const [defaultRegion, setDefaultRegion] = useState("US");
   const [selectedFields, setSelectedFields] = useState(DEFAULT_SELECTED_FIELDS);
   const [keepEmptyFields, setKeepEmptyFields] = useState(DEFAULT_KEEP_EMPTY_FIELDS);
   const [fieldRenames, setFieldRenames] = useState(DEFAULT_FIELD_RENAMES);
@@ -981,7 +981,7 @@ export default function App() {
     for (const file of files) payload.append("files", file);
     payload.append("github_url", githubUrl);
     payload.append("linkedin_url", linkedinUrl);
-    payload.append("default_region", defaultRegion);
+    payload.append("default_region", DEFAULT_PHONE_REGION);
     payload.append("config", JSON.stringify(customConfig));
 
     try {
@@ -1016,10 +1016,20 @@ export default function App() {
 
       <div className="mx-auto grid max-w-7xl gap-5 px-5 py-5 lg:grid-cols-[420px_1fr]">
         <form onSubmit={submit} className="space-y-4 rounded-lg border border-orange-100 bg-white p-4 shadow-sm">
+          <button
+            type="submit"
+            disabled={loading}
+            title="Start extraction"
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-orange-700 bg-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700 disabled:cursor-wait disabled:opacity-70"
+          >
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
+            Start Extraction
+          </button>
+
           <label className="block">
             <span className="mb-2 block text-sm font-medium">Sources</span>
             <div className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-orange-300 bg-orange-50/70 px-4 py-5 text-center transition hover:border-orange-400 hover:bg-orange-100/70">
-              <UploadCloud size={26} className="text-accent" />
+              <UploadCloud size={26} className="text-orange-600" />
               <span className="mt-2 max-w-full text-sm text-slate-700">CSV, JSON, TXT, MD, PDF, or DOCX</span>
               <span className="mt-1 text-xs text-slate-500">Max {MAX_FILES} files, 10 MB each</span>
               <input
@@ -1052,16 +1062,6 @@ export default function App() {
             )}
           </label>
 
-          <button
-            type="submit"
-            disabled={loading}
-            title="Run transformer"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-wait disabled:opacity-70"
-          >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
-            Transform
-          </button>
-
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-sm font-medium">
               <Github size={16} />
@@ -1088,18 +1088,6 @@ export default function App() {
             />
           </label>
 
-          <div className="grid gap-3">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium">Default Phone Region</span>
-              <input
-                className="w-full rounded-md border border-line px-3 py-2 text-sm uppercase outline-none focus:border-ink"
-                value={defaultRegion}
-                onChange={(event) => setDefaultRegion(event.target.value.toUpperCase())}
-              />
-              <span className="mt-1 block text-xs text-slate-500">Used only when a phone number has no country code.</span>
-            </label>
-          </div>
-
           <CustomFieldSelector
             selectedFields={selectedFields}
             keepEmptyFields={keepEmptyFields}
@@ -1111,16 +1099,6 @@ export default function App() {
             onClearAll={clearAllCustomFields}
             configPreview={customConfig}
           />
-
-          <button
-            type="submit"
-            disabled={loading}
-            title="Run transformer"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-wait disabled:opacity-70"
-          >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
-            Transform
-          </button>
 
           {error && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
         </form>
