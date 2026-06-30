@@ -1126,8 +1126,8 @@ def run_agentic_llmops(
             "mode": "deterministic",
             "target_fields": [field],
             "deterministic_confidence": confidence,
-            "system_prompt": "Deterministic field gateway. No LLM generation prompt was used.",
-            "evaluator_prompt": "Local deterministic evaluator unless Gemini is available for medium-confidence review.",
+            "system_prompt": "Deterministic field gateway. High-confidence deterministic values are still verified through a ReACT-style evaluator loop when Gemini is available.",
+            "evaluator_prompt": "Local deterministic evaluator unless Gemini is available for field-value verification.",
             "field_specific_input": field_input[:2500],
             "loops": 1,
             "iterations": [],
@@ -1165,9 +1165,44 @@ def run_agentic_llmops(
             needs_agent = True
             evaluation = {"score": 1.0, "passed": False, "use_output": False, "verdict": "Discarded low-confidence deterministic value.", "issues": [], "improvement_hint": "Run field agent if available."}
         elif confidence >= ACCEPT_CONFIDENCE:
-            trace.update({"status": "accepted_high_confidence", "stopping_reason": "deterministic confidence met accept threshold", "final_score": 10.0, "passed": True, "accepted": True, "final_output": value})
-            needs_agent = False
-            evaluation = {"score": 10.0, "passed": True, "use_output": True, "verdict": "Accepted high-confidence deterministic value.", "issues": [], "improvement_hint": ""}
+            if llm_available:
+                evaluation, eval_errors, eval_events, evaluator_prompt = run_llm_evaluator(spec, value, field_input, working, default_region)
+                errors.extend(eval_errors)
+                trace["request_events"].extend(eval_events)
+                request_events.extend(eval_events)
+                trace["evaluator_prompt"] = evaluator_prompt
+                trace["mode"] = "react_deterministic_verification"
+                trace["system_prompt"] = (
+                    "ReACT-style deterministic verification loop. Observe the deterministic field/value mapping, "
+                    "call the field-specific evaluator tool, and accept only when the evaluator score is high and evidence-backed."
+                )
+                accepted = (
+                    bool(evaluation.get("use_output"))
+                    and float(evaluation.get("score", 0)) >= threshold
+                    and value_matches_kind(value, spec["kind"])
+                    and not is_missing(value)
+                )
+            else:
+                evaluation = local_evaluate_field(field, value, confidence, working)
+                accepted = (
+                    bool(evaluation.get("use_output"))
+                    and float(evaluation.get("score", 0)) >= threshold
+                    and value_matches_kind(value, spec["kind"])
+                    and not is_missing(value)
+                )
+            if not accepted:
+                clear_field(working, field, spec["kind"])
+            trace.update(
+                {
+                    "status": "verified_high_confidence" if accepted else "high_confidence_verification_failed",
+                    "stopping_reason": "deterministic value verified by evaluator" if accepted else "deterministic value failed evaluator verification",
+                    "final_score": clamp_score(evaluation.get("score")),
+                    "passed": accepted,
+                    "accepted": accepted,
+                    "final_output": value if accepted else None,
+                }
+            )
+            needs_agent = not accepted
         else:
             if llm_available:
                 evaluation, eval_errors, eval_events, evaluator_prompt = run_llm_evaluator(spec, value, field_input, working, default_region)

@@ -1052,6 +1052,16 @@ export default function App() {
             )}
           </label>
 
+          <button
+            type="submit"
+            disabled={loading}
+            title="Run transformer"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accentDark disabled:cursor-wait disabled:opacity-70"
+          >
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <Play size={18} />}
+            Transform
+          </button>
+
           <label className="block">
             <span className="mb-2 flex items-center gap-2 text-sm font-medium">
               <Github size={16} />
